@@ -1,0 +1,16 @@
+const express = require('express');
+const app = express();
+const port = 5000;
+app.use(express.json());
+const authRoutes = require("./routes/auth");
+const connectDB = require("./config/db");
+require('dotenv').config();
+connectDB();
+app.use("/api/auth",authRoutes);
+app.get('/',(req,res)=>{
+  res.send("Welcome to Travelog Backend Server");
+});
+
+app.listen(port,()=>{
+  console.log(`Server is running on http://localhost:${port}`);
+});
