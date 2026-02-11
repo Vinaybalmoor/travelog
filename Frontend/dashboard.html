@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard | Travelog</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script>
+      if (!localStorage.getItem("isLoggedIn")) {
+        window.location.href = "login.html";
+      }
+    </script>
+
+    <h1>Welcome to Travelog Dashboard 🌍</h1>
+    <p>You are logged in.</p>
+
+    <button onclick="logout()">Logout</button>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>

@@ -1,23 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <div class = "container">
-    <h2>Login to our app </h2>
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <a href = "dashboard.html" class="btn">Login</a>
-    <p> 
-      Does not have an account?
-      <a href="register.html">Register here</a>
-    </p>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login | Travelog</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+
+  <body class="auth-page">
+    <div class="auth-card">
+      <h2>Welcome Back ✨</h2>
+
+      <label>Email</label>
+      <input type="email" id="email" />
+
+      <label>Password</label>
+      <input type="password" id="password" />
+
+      <button class="btn" onclick="login()">Login</button>
+
+      <p>
+        Don’t have an account?
+        <a href="register.html">Register</a>
+      </p>
+    </div>
+
+    <script src="js/main.js"></script>
+  </body>
 </html>
