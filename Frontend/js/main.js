@@ -1,4 +1,4 @@
-let editTripId = null; // stores trip being edited
+let editTripId = null;
 
 // ================= REGISTER =================
 async function register() {
@@ -18,7 +18,6 @@ async function register() {
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       alert(data.message || "Registration failed");
       return;
@@ -50,7 +49,6 @@ async function login() {
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       alert(data.message || "Login failed");
       return;
@@ -78,7 +76,10 @@ async function fetchTrips() {
 
   try {
     const res = await fetch("http://localhost:5000/api/trips", {
-      headers: { Authorization: "Bearer " + token },
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token 
+      },
     });
 
     const data = await res.json();
@@ -95,7 +96,6 @@ async function fetchTrips() {
     data.trips.forEach((trip) => {
       const div = document.createElement("div");
       div.className = "trip-card";
-
       div.innerHTML = `
         <h3>${trip.title}</h3>
         <p>${trip.description}</p>
@@ -104,7 +104,6 @@ async function fetchTrips() {
           <button onclick="deleteTrip('${trip._id}')">Delete</button>
         </div>
       `;
-
       tripList.appendChild(div);
     });
   } catch (err) {
@@ -124,9 +123,10 @@ async function addTrip() {
   }
 
   try {
+    let res;
     if (editTripId) {
       // UPDATE MODE
-      const res = await fetch(`http://localhost:5000/api/trips/${editTripId}`, {
+      res = await fetch(`http://localhost:5000/api/trips/${editTripId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -134,18 +134,9 @@ async function addTrip() {
         },
         body: JSON.stringify({ title, description }),
       });
-
-      if (!res.ok) {
-        alert("Failed to update trip");
-        return;
-      }
-
-      alert("Trip updated successfully ✅");
-      editTripId = null;
-      document.getElementById("addBtn").textContent = "Add Trip";
     } else {
       // ADD MODE
-      const res = await fetch("http://localhost:5000/api/trips", {
+      res = await fetch("http://localhost:5000/api/trips", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,15 +144,16 @@ async function addTrip() {
         },
         body: JSON.stringify({ title, description }),
       });
-
-      if (!res.ok) {
-        alert("Failed to add trip");
-        return;
-      }
-
-      alert("Trip added successfully 🎉");
     }
 
+    if (!res.ok) {
+      alert("Action failed");
+      return;
+    }
+
+    alert(editTripId ? "Trip updated! ✅" : "Trip added! 🎉");
+    editTripId = null;
+    document.getElementById("addBtn").textContent = "Add Trip";
     document.getElementById("title").value = "";
     document.getElementById("description").value = "";
     fetchTrips();
@@ -182,7 +174,6 @@ function editTrip(id, title, description) {
 // ================= DELETE TRIP =================
 async function deleteTrip(id) {
   const token = localStorage.getItem("token");
-
   if (!confirm("Are you sure you want to delete this trip?")) return;
 
   try {
@@ -196,7 +187,7 @@ async function deleteTrip(id) {
       return;
     }
 
-    alert("Trip deleted successfully ✅");
+    alert("Trip deleted! ✅");
     fetchTrips();
   } catch (err) {
     console.error(err);

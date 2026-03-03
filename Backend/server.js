@@ -1,30 +1,27 @@
-require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/db");
-
-const authRoutes = require("./routes/auth");
-const tripsRoutes = require("./routes/trips");
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 5000;
 
-// Connect Database
-connectDB();
+app.use(
+  cors({
+    origin: "http://127.0.0.1:5500",
+  }),
+);
 
-// Middlewares
-app.use(cors()); // allow all origins (better for hackathon/demo)
 app.use(express.json());
-
-// Routes
+const authRoutes = require("./routes/auth");
+const connectDB = require("./config/db");
+const tripsRoutes = require("./routes/trips");
+require("dotenv").config();
+connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/trips", tripsRoutes);
-
 app.get("/", (req, res) => {
   res.send("Welcome to Travelog Backend Server");
 });
 
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });
