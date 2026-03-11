@@ -15,11 +15,13 @@ const authRoutes = require("./routes/auth");
 const connectDB = require("./config/db");
 const tripsRoutes = require("./routes/trips");
 const expenseRoutes = require("./routes/expenses");
+const placeRoutes = require("./routes/places");
 require("dotenv").config();
 connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/trips", tripsRoutes);
 app.use("/api/expenses", expenseRoutes);
+app.use("/api/places", placeRoutes);
 app.get("/", (req, res) => {
   res.send("Welcome to Travelog Backend Server");
 });

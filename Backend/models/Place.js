@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const expenseSchema = new mongoose.Schema(
+const placeSchema = new mongoose.Schema(
   {
     tripId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -11,30 +11,21 @@ const expenseSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    category: {
-      type: String,
-      enum: [
-        "accomodation",
-        "restaurant",
-        "shopping",
-        "sightseeing",
-        "transportation",
-      ],
-      required: true,
-    },
-    title: {
+
+    name: {
       type: String,
       required: true,
     },
-    amount: {
+    latitude: {
       type: Number,
       required: true,
     },
-    transportMode: {
-      type: String,
-      enum: ["car", "train", "bus", "flight"],
+    longitude: {
+      type: Number,
+      required: true,
     },
   },
   { timestamps: true },
 );
-module.exports = mongoose.model("Expense", expenseSchema);
+
+module.exports = mongoose.model("Place", placeSchema);
