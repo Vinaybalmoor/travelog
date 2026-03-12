@@ -101,7 +101,6 @@ router.put("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = router;
 // this is used for the dashboard to get all the data related to a trip in one request
 router.get("/dashboard/:tripId", authMiddleware, async(req,res) => {
   try{
@@ -130,3 +129,42 @@ router.get("/dashboard/:tripId", authMiddleware, async(req,res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 })
+
+router.get("/map/:tripId", authMiddleware, async(req,res) => {
+  try{
+
+    const places = await Place.find({
+      tripId: req.params.tripId,
+      userId: req.user.userId
+    })
+    const coordinates = places.map(place =>({
+      name: place.name,
+      lat : place.latitude,
+      long: place.longitude
+    }))
+    res.json({
+      tripId: req.params.tripId,
+      places: coordinates
+    })
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+})
+
+router.get("/route/:tripId", authMiddleware, async(req,res) => {
+  try{
+    const places = await Place.find({
+      tripId: req.params.tripId,
+      userId: req.user.userId
+    }).sort({createdAt: 1})
+    const route = places.map(place =>({
+        lat: place.latitude,
+        lng: place.longitude
+    }))
+    res.json({route})
+  } catch(error){
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+})
+
+module.exports = router;

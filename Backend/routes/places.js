@@ -48,4 +48,28 @@ router.get("/:tripId", authMiddleware, async (req, res) => {
   }
 });
 
+router.put("/:id", authMiddleware, async (req, res) => {
+  try{
+    const place = await Place.findById(req.params.id);
+    if(!place){
+      res.status(404).json({message: "Place not found"});
+    }
+    if(place.userId.toString() !== req.user.userId){
+      res.status(403).json({message: "Not authorized"});
+    }
+    const { name, latitude, longitude } = req.body;
+    if(name) place.name = name;
+    if(latitude) place.latitude = latitude;
+    if(longitude) place.longitude = longitude;
+
+    await place.save();
+    res.status(200).json({message: "Place updated successfully", place});
+
+  } catch(error){
+    res.status(500).json({message: "Server error"});
+  }
+});
+
+
+
 module.exports = router;
