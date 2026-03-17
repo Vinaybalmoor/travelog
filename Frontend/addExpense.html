@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Add Expenses</title>
+  </head>
+  <body>
+    <h2>Add Expense</h2>
+
+    <form id="expenseForm">
+      <input type="text" id="title" placeholder="Title" required />
+      <input type="number" id="amount" placeholder="Amount" required />
+
+      <select id="category">
+        <option value="food">Food</option>
+        <option value="travel">Travel</option>
+        <option value="stay">Stay</option>
+      </select>
+
+      <input type="text" id="transportMode" placeholder="Transport Mode" />
+
+      <button type="submit">Add Expense</button>
+    </form>
+
+    <h3>Total: ₹<span id="total">0</span></h3>
+
+    <script src="js/expenses.js"></script>
+  </body>
+</html>

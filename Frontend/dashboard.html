@@ -4,40 +4,73 @@
     <meta charset="UTF-8" />
     <title>Dashboard | Travelog</title>
     <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   </head>
+
   <body>
     <script>
-      const token = localStorage.getItem("token");
-      if (!token) {
+      if (!localStorage.getItem("token")) {
         alert("Please login first");
         window.location.href = "login.html";
       }
     </script>
 
     <div class="dashboard-container">
+      <!-- HEADER -->
       <div class="dashboard-header">
         <h1>Travelog Dashboard 🌍</h1>
-        <button onclick="logout()" class="logout-btn">Logout</button>
+        <button onclick="logout()">Logout</button>
       </div>
 
-      <div class="add-trip">
-        <h2>Add / Update Trip</h2>
-
-        <input type="text" id="title" placeholder="Trip Title" />
-        <input type="text" id="description" placeholder="Trip Description" />
-
-        <button id="addBtn" onclick="addTrip()">Add Trip</button>
+      <!-- NAVIGATION -->
+      <div style="margin-bottom: 20px">
+        <button onclick="goToAddPlace()">Add Place</button>
+        <button onclick="goToAddExpense()">Add Expense</button>
       </div>
 
+      <!-- PLACES -->
       <div class="trip-section">
-        <h2>Your Trips</h2>
-        <div id="tripList"></div>
+        <h2>📍 Places</h2>
+        <div id="placesList"></div>
+      </div>
+
+      <!-- EXPENSES -->
+      <div class="trip-section">
+        <h2>💰 Expenses</h2>
+        <div id="expenseList"></div>
+        <h3>Total: <span id="total">₹0</span></h3>
+      </div>
+
+      <!-- MAP -->
+      <div class="trip-section">
+        <h2>🗺️ Map</h2>
+        <div id="map" style="height: 300px"></div>
       </div>
     </div>
 
     <script src="js/main.js"></script>
+
     <script>
-      fetchTrips();
+      window.onload = () => {
+        initMap();
+
+        // ✅ FIX: only load if trip exists
+        if (tripId) {
+          loadPlaces();
+          loadExpenses();
+        } else {
+          document.getElementById("placesList").innerHTML =
+            "<p>No trip selected</p>";
+        }
+      };
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
     </script>
   </body>
 </html>

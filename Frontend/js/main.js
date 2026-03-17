@@ -1,9 +1,11 @@
 let editTripId = null;
-
+const BASE_URL = "http://localhost:5000/api";
+const token = localStorage.getItem("token");
+const tripId = localStorage.getItem("tripId");
 // ================= REGISTER =================
 async function register() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = document.getElementById("email")?.value;
+  const password = document.getElementById("password")?.value;
 
   if (!email || !password) {
     alert("Please fill all fields");
@@ -18,6 +20,7 @@ async function register() {
     });
 
     const data = await res.json();
+
     if (!res.ok) {
       alert(data.message || "Registration failed");
       return;
@@ -32,35 +35,34 @@ async function register() {
 }
 
 // ================= LOGIN =================
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+function login() {
+  const email = document.getElementById("email")?.value;
+  const password = document.getElementById("password")?.value;
 
-  if (!email || !password) {
-    alert("Please fill all fields");
-    return;
-  }
+  fetch("http://localhost:5000/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, password })
+  })
+  .then(res => res.json())   // ✅ THIS LINE IS MUST
+  .then(data => {
+    console.log("LOGIN DATA:", data); // ✅ now real data
 
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    if (data.token) {
+      localStorage.setItem("token", data.token);
 
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.message || "Login failed");
-      return;
+      alert("Login successful ✅");
+      window.location.href = "dashboard.html";
+    } else {
+      alert(data.message || "Invalid credentials ❌");
     }
-
-    localStorage.setItem("token", data.token);
-    alert("Login successful 🎉");
-    window.location.href = "dashboard.html";
-  } catch (err) {
+  })
+  .catch(err => {
     console.error(err);
     alert("Server error");
-  }
+  });
 }
 
 // ================= LOGOUT =================
@@ -124,8 +126,8 @@ async function addTrip() {
 
   try {
     let res;
+
     if (editTripId) {
-      // UPDATE MODE
       res = await fetch(`http://localhost:5000/api/trips/${editTripId}`, {
         method: "PUT",
         headers: {
@@ -135,7 +137,6 @@ async function addTrip() {
         body: JSON.stringify({ title, description }),
       });
     } else {
-      // ADD MODE
       res = await fetch("http://localhost:5000/api/trips", {
         method: "POST",
         headers: {
@@ -152,28 +153,50 @@ async function addTrip() {
     }
 
     alert(editTripId ? "Trip updated! ✅" : "Trip added! 🎉");
+
     editTripId = null;
-    document.getElementById("addBtn").textContent = "Add Trip";
-    document.getElementById("title").value = "";
-    document.getElementById("description").value = "";
+
+    if (document.getElementById("addBtn")) {
+      document.getElementById("addBtn").textContent = "Add Trip";
+    }
+
+    if (document.getElementById("title")) {
+      document.getElementById("title").value = "";
+    }
+
+    if (document.getElementById("description")) {
+      document.getElementById("description").value = "";
+    }
+
     fetchTrips();
   } catch (err) {
     console.error(err);
   }
 }
 
-// ================= EDIT FUNCTION =================
+// ================= EDIT TRIP =================
 function editTrip(id, title, description) {
   editTripId = id;
-  document.getElementById("title").value = title;
-  document.getElementById("description").value = description;
-  document.getElementById("addBtn").textContent = "Update Trip";
+
+  if (document.getElementById("title")) {
+    document.getElementById("title").value = title;
+  }
+
+  if (document.getElementById("description")) {
+    document.getElementById("description").value = description;
+  }
+
+  if (document.getElementById("addBtn")) {
+    document.getElementById("addBtn").textContent = "Update Trip";
+  }
+
   window.scrollTo(0, 0);
 }
 
 // ================= DELETE TRIP =================
 async function deleteTrip(id) {
   const token = localStorage.getItem("token");
+
   if (!confirm("Are you sure you want to delete this trip?")) return;
 
   try {
@@ -192,4 +215,164 @@ async function deleteTrip(id) {
   } catch (err) {
     console.error(err);
   }
+}
+
+// ================= NAVIGATION =================
+function goToAddPlace() {
+  window.location.href = "addPlace.html";
+}
+
+function goToAddExpense() {
+  window.location.href = "addExpense.html";
+}
+
+// ================= MAP =================
+let map;
+
+function initMap() {
+  map = L.map("map").setView([17.3850, 78.4867], 10); // Hyderabad default
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap",
+  }).addTo(map);
+}
+// ================= LOAD PLACES =================
+function loadPlaces() {
+  const container = document.getElementById("placesList");
+  if (!container) return;
+
+  const token = localStorage.getItem("token");
+  const tripId = localStorage.getItem("tripId");
+
+  fetch(`http://localhost:5000/api/places/${tripId}`, {
+    headers: {
+      Authorization: "Bearer " + token
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      container.innerHTML = "";
+
+      if (!data.places || data.places.length === 0) {
+        container.innerHTML = "<p>No places added yet</p>";
+        return;
+      }
+
+      data.places.forEach(place => {
+        container.innerHTML += `
+          <div class="card">
+            <h3>${place.name}</h3>
+            <p>${place.latitude}, ${place.longitude}</p>
+
+            <button onclick="deletePlace('${place._id}')">Delete</button>
+            <button onclick="editPlace('${place._id}', '${place.name}', '${place.latitude}', '${place.longitude}')">Edit</button>
+          </div>
+        `;
+      });
+    })
+    .catch(err => console.error(err));
+}
+// ================= ADD MARKERS =================
+function addMarkers(places) {
+  if (!map) return;
+
+  places.forEach(place => {
+    if (place.latitude && place.longitude) {
+      L.marker([place.latitude, place.longitude])
+        .addTo(map)
+        .bindPopup(place.name);
+    }
+  });
+}
+
+// ================= LOAD EXPENSES =================
+function loadExpenses() {
+  const container = document.getElementById("expenseList");
+  if (!container) return;
+
+  fetch("http://localhost:5000/api/expenses")
+    .then(res => res.json())
+    .then(data => {
+      container.innerHTML = "";
+
+      let total = 0;
+
+      data.forEach(exp => {
+        total += Number(exp.amount);
+
+        container.innerHTML += `
+          <div class="card">
+            <p>${exp.title} - ₹${exp.amount}</p>
+          </div>
+        `;
+      });
+
+      const totalEl = document.getElementById("total");
+      if (totalEl) {
+        totalEl.innerText = "₹" + total;
+      }
+    })
+    .catch(err => console.error(err));
+}
+function loadDashboard() {
+  const tripId = localStorage.getItem("tripId");
+
+  fetch(`${BASE_URL}/trips/dashboard/${tripId}`, {
+    headers: { Authorization: token }
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    document.getElementById("tripTitle").innerText = data.trip.title;
+    document.getElementById("total").innerText = "₹" + data.totalExpense;
+
+    // Expenses
+    const expList = document.getElementById("expenseList");
+    expList.innerHTML = "";
+
+    data.expenses.forEach(e => {
+      expList.innerHTML += `
+        <div>
+          ${e.title} - ₹${e.amount} (${e.category})
+        </div>
+      `;
+    });
+
+    // Places
+    const placeList = document.getElementById("placeList");
+    placeList.innerHTML = "";
+
+    data.places.forEach(p => {
+      placeList.innerHTML += `
+        <div>${p.name} (${p.latitude}, ${p.longitude})</div>
+      `;
+    });
+
+  });
+}
+function addExpense() {
+  const tripId = localStorage.getItem("tripId");
+
+  const title = document.getElementById("expTitle").value;
+  const amount = Number(document.getElementById("amount").value);
+  const category = document.getElementById("category").value;
+
+  fetch(`${BASE_URL}/expenses`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({
+      tripId,
+      title,
+      amount,
+      category
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("Expense added 💸");
+    loadDashboard();
+  });
 }

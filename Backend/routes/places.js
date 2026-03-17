@@ -1,75 +1,97 @@
-const express = require("express");
-const router = express.Router();
-const Place = require("../models/Place");
-const authMiddleware = require("../middleware/authMiddleware");
+const API = "http://localhost:5000/api/places";
+const token = localStorage.getItem("token");
+const tripId = localStorage.getItem("tripId");
 
-router.post("/", authMiddleware, async (req, res) => {
-  const { tripId, name, latitude, longitude } = req.body;
-  try {
-    const place = new Place({
-      tripId,
-      userId: req.user.userId,
-      name,
-      latitude,
-      longitude,
+const form = document.getElementById("placeForm");
+const table = document.getElementById("placesTable");
+
+// ================= LOAD PLACES =================
+async function loadPlaces() {
+  const res = await fetch(`${API}/${tripId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const data = await res.json();
+  table.innerHTML = "";
+
+  data.places.forEach(place => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${place.name}</td>
+      <td>${place.latitude}</td>
+      <td>${place.longitude}</td>
+      <td>
+        <button onclick="editPlace('${place._id}', '${place.name}', ${place.latitude}, ${place.longitude})">Edit</button>
+        <button onclick="deletePlace('${place._id}')">Delete</button>
+      </td>
+    `;
+
+    table.appendChild(row);
+  });
+}
+
+// ================= ADD / UPDATE =================
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById("placeId").value;
+  const name = document.getElementById("name").value;
+  const latitude = document.getElementById("lat").value;
+  const longitude = document.getElementById("lng").value;
+
+  const data = { name, latitude, longitude };
+
+  if (id) {
+    // UPDATE
+    await fetch(`${API}/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
     });
-    await place.save();
-    res.status(201).json({ message: "Place added successfully", place });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-router.delete("/:id", authMiddleware, async (req, res) => {
-  try {
-    const place = await Place.findById(req.params.id);
-    if (!place) {
-      res.status(404).json({ message: "Place not found" });
-    }
-    if (place.userId.toString() !== req.user.userId) {
-      res.status(403).json({ message: "Not authorized" });
-    }
-    await place.deleteOne();
-    res.status(200).json({ message: "Place deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-router.get("/:tripId", authMiddleware, async (req, res) => {
-  try {
-    const places = await Place.find({
-      tripId: req.params.tripId,
-      userId: req.user.userId,
+  } else {
+    // CREATE
+    await fetch(API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ ...data, tripId })
     });
-    res.json({ places });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
   }
+
+  form.reset();
+  document.getElementById("placeId").value = "";
+  loadPlaces();
 });
 
-router.put("/:id", authMiddleware, async (req, res) => {
-  try{
-    const place = await Place.findById(req.params.id);
-    if(!place){
-      res.status(404).json({message: "Place not found"});
+// ================= DELETE =================
+async function deletePlace(id) {
+  if (!confirm("Are you sure?")) return;
+
+  await fetch(`${API}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-    if(place.userId.toString() !== req.user.userId){
-      res.status(403).json({message: "Not authorized"});
-    }
-    const { name, latitude, longitude } = req.body;
-    if(name) place.name = name;
-    if(latitude) place.latitude = latitude;
-    if(longitude) place.longitude = longitude;
+  });
 
-    await place.save();
-    res.status(200).json({message: "Place updated successfully", place});
+  loadPlaces();
+}
 
-  } catch(error){
-    res.status(500).json({message: "Server error"});
-  }
-});
+// ================= EDIT =================
+function editPlace(id, name, lat, lng) {
+  document.getElementById("placeId").value = id;
+  document.getElementById("name").value = name;
+  document.getElementById("lat").value = lat;
+  document.getElementById("lng").value = lng;
+}
 
-
-
-module.exports = router;
+// INITIAL LOAD
+loadPlaces();

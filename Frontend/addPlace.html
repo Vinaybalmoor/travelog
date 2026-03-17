@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Manage Places</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <h2>📍 Manage Places</h2>
+
+    <!-- ADD / UPDATE FORM -->
+    <form id="placeForm">
+      <input type="hidden" id="placeId" />
+
+      <input type="text" id="name" placeholder="Place Name" required />
+      <input
+        type="number"
+        step="any"
+        id="lat"
+        placeholder="Latitude"
+        required
+      />
+      <input
+        type="number"
+        step="any"
+        id="lng"
+        placeholder="Longitude"
+        required
+      />
+
+      <button type="submit">Save Place</button>
+    </form>
+
+    <h3>Your Places</h3>
+
+    <table border="1" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="placesTable"></tbody>
+    </table>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
