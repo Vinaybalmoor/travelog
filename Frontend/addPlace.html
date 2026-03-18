@@ -5,6 +5,9 @@
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
+    <div style="margin-bottom: 10px">
+      <button onclick="goBack()">⬅ Back</button>
+    </div>
     <h2>📍 Manage Places</h2>
 
     <!-- ADD / UPDATE FORM -->
@@ -44,6 +47,11 @@
       <tbody id="placesTable"></tbody>
     </table>
 
-    <script src="js/main.js"></script>
+    <script src="js/place.js"></script>
+    <script>
+      function goBack() {
+        window.location.href = "dashboard.html"; // change if your home page name is different
+      }
+    </script>
   </body>
 </html>

@@ -1,97 +1,59 @@
-const API = "http://localhost:5000/api/places";
-const token = localStorage.getItem("token");
-const tripId = localStorage.getItem("tripId");
+const express = require("express");
+const router = express.Router();
 
-const form = document.getElementById("placeForm");
-const table = document.getElementById("placesTable");
+// 🟢 TEMP STORAGE (acts like database)
+let places = [];
 
-// ================= LOAD PLACES =================
-async function loadPlaces() {
-  const res = await fetch(`${API}/${tripId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+// ================= GET PLACES =================
+router.get("/:tripId", (req, res) => {
+    const { tripId } = req.params;
 
-  const data = await res.json();
-  table.innerHTML = "";
+    const filtered = places.filter(p => p.tripId === tripId);
 
-  data.places.forEach(place => {
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td>${place.name}</td>
-      <td>${place.latitude}</td>
-      <td>${place.longitude}</td>
-      <td>
-        <button onclick="editPlace('${place._id}', '${place.name}', ${place.latitude}, ${place.longitude})">Edit</button>
-        <button onclick="deletePlace('${place._id}')">Delete</button>
-      </td>
-    `;
-
-    table.appendChild(row);
-  });
-}
-
-// ================= ADD / UPDATE =================
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const id = document.getElementById("placeId").value;
-  const name = document.getElementById("name").value;
-  const latitude = document.getElementById("lat").value;
-  const longitude = document.getElementById("lng").value;
-
-  const data = { name, latitude, longitude };
-
-  if (id) {
-    // UPDATE
-    await fetch(`${API}/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(data)
-    });
-  } else {
-    // CREATE
-    await fetch(API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ ...data, tripId })
-    });
-  }
-
-  form.reset();
-  document.getElementById("placeId").value = "";
-  loadPlaces();
+    res.json({ places: filtered });
 });
 
-// ================= DELETE =================
-async function deletePlace(id) {
-  if (!confirm("Are you sure?")) return;
+// ================= CREATE PLACE =================
+router.post("/", (req, res) => {
+    const { name, latitude, longitude, tripId } = req.body;
 
-  await fetch(`${API}/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+    const newPlace = {
+        _id: Date.now().toString(),
+        name,
+        latitude,
+        longitude,
+        tripId
+    };
 
-  loadPlaces();
-}
+    places.push(newPlace);
 
-// ================= EDIT =================
-function editPlace(id, name, lat, lng) {
-  document.getElementById("placeId").value = id;
-  document.getElementById("name").value = name;
-  document.getElementById("lat").value = lat;
-  document.getElementById("lng").value = lng;
-}
+    console.log("Added:", newPlace);
 
-// INITIAL LOAD
-loadPlaces();
+    res.json({ message: "Place added", place: newPlace });
+});
+
+// ================= UPDATE PLACE =================
+router.put("/:id", (req, res) => {
+    const { id } = req.params;
+    const { name, latitude, longitude } = req.body;
+
+    places = places.map(p => {
+        if (p._id === id) {
+            return { ...p, name, latitude, longitude };
+        }
+        return p;
+    });
+
+    res.json({ message: "Place updated" });
+});
+
+// ================= DELETE PLACE =================
+router.delete("/:id", (req, res) => {
+    const { id } = req.params;
+
+    places = places.filter(p => p._id !== id);
+
+    res.json({ message: "Place deleted" });
+});
+
+module.exports = router;

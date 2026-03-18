@@ -27,15 +27,14 @@ router.post("/", authMiddleware, async (req, res) => {
 
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    const expense = await Expense.findById(req.params.body);
-    if (!expense) {
+const expense = await Expense.findById(req.params.id);    
+if (!expense) {
       res.status(404).json({ message: "Expense not found" });
     }
     if (expense.userId.toString() !== req.user.userId) {
       res.status(403).json({ message: "Not authorized" });
     }
-    await expe.deleteOne();
-  } catch (error) {
+await expense.deleteOne();  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -96,7 +95,7 @@ router.post("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("stats/:tripId", authMiddleware, async (req, res) => {
+router.get("/stats/:tripId", authMiddleware, async (req, res) => {
   try{
     const expenses = await Expense.find({
       tripId: req.params.tripId,
