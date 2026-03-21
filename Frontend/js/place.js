@@ -1,6 +1,4 @@
 const API = "http://localhost:5000/api/places";
-
-// Get tripId from localStorage
 const tripId = localStorage.getItem("tripId");
 
 const form = document.getElementById("placeForm");
@@ -41,55 +39,48 @@ async function loadPlaces() {
 }
 
 // ================= ADD / UPDATE =================
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const id = document.getElementById("placeId").value;
-  const name = document.getElementById("name").value;
-  const latitude = document.getElementById("lat").value;
-  const longitude = document.getElementById("lng").value;
+    const id = document.getElementById("placeId").value;
+    const name = document.getElementById("name").value;
+    const latitude = document.getElementById("lat").value;
+    const longitude = document.getElementById("lng").value;
 
-  const data = { name, latitude, longitude, tripId };
+    const data = { name, latitude, longitude, tripId };
 
-  try {
-    if (id) {
-      // UPDATE
-      await fetch(`${API}/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-    } else {
-      // CREATE
-      await fetch(API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
+    try {
+      if (id) {
+        await fetch(`${API}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+      } else {
+        await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+      }
+
+      form.reset();
+      document.getElementById("placeId").value = "";
+      loadPlaces();
+
+    } catch (err) {
+      console.error("Error saving place:", err);
     }
-
-    form.reset();
-    document.getElementById("placeId").value = "";
-    loadPlaces();
-
-  } catch (err) {
-    console.error("Error saving place:", err);
-  }
-});
+  });
+}
 
 // ================= DELETE =================
 async function deletePlace(id) {
   if (!confirm("Are you sure?")) return;
 
   try {
-    await fetch(`${API}/${id}`, {
-      method: "DELETE"
-    });
-
+    await fetch(`${API}/${id}`, { method: "DELETE" });
     loadPlaces();
   } catch (err) {
     console.error("Error deleting:", err);
@@ -105,4 +96,6 @@ function editPlace(id, name, lat, lng) {
 }
 
 // ================= INITIAL LOAD =================
-window.onload = loadPlaces;
+window.onload = () => {
+  loadPlaces();
+};

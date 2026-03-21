@@ -25,6 +25,12 @@
         <button onclick="logout()">Logout</button>
       </div>
 
+      <!-- SELECT TRIP -->
+      <div style="margin-bottom: 20px">
+        <input type="text" id="tripInput" placeholder="Enter Trip ID" />
+        <button onclick="selectTrip()">Select Trip</button>
+      </div>
+
       <!-- NAVIGATION -->
       <div style="margin-bottom: 20px">
         <button onclick="goToAddPlace()">Add Place</button>
@@ -54,23 +60,42 @@
     <script src="js/main.js"></script>
 
     <script>
-      window.onload = () => {
-        initMap();
-
-        // ✅ FIX: only load if trip exists
-        if (tripId) {
-          loadPlaces();
-          loadExpenses();
-        } else {
-          document.getElementById("placesList").innerHTML =
-            "<p>No trip selected</p>";
-        }
-      };
-
       function logout() {
         localStorage.clear();
         window.location.href = "login.html";
       }
+
+      function selectTrip() {
+        const id = document.getElementById("tripInput").value;
+
+        if (!id) {
+          alert("Enter Trip ID");
+          return;
+        }
+
+        localStorage.setItem("tripId", id);
+        alert("Trip Selected!");
+      }
+
+      function goToAddPlace() {
+        if (!localStorage.getItem("tripId")) {
+          alert("Select a trip first!");
+          return;
+        }
+        window.location.href = "addPlace.html";
+      }
+
+      function goToAddExpense() {
+        if (!localStorage.getItem("tripId")) {
+          alert("Select a trip first!");
+          return;
+        }
+        window.location.href = "addExpense.html";
+      }
+
+      window.onload = () => {
+        initMap();
+      };
     </script>
   </body>
 </html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Trip Details</title>
+  </head>
+
+  <body>
+    <h2>Trip Details</h2>
+
+    <button onclick="goBack()">⬅ Back</button>
+
+    <br /><br />
+
+    <button onclick="goToAddPlace()">Add Place</button>
+    <button onclick="goToAddExpense()">Add Expense</button>
+
+    <hr />
+
+    <h3>📍 Places</h3>
+    <div id="placesList"></div>
+
+    <h3>💰 Expenses</h3>
+    <div id="expenseList"></div>
+    <p>Total: ₹<span id="total">0</span></p>
+
+    <script src="js/tripDetails.js"></script>
+  </body>
+</html>
