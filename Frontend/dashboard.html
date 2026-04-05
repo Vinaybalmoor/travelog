@@ -1,101 +1,249 @@
 <!doctype html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <title>Dashboard | Travelog</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <title>Dashboard</title>
 
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      /* Navbar */
+      .navbar {
+        background: linear-gradient(90deg, #1e293b, #0f172a);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .navbar-brand {
+        font-size: 20px;
+        letter-spacing: 1px;
+      }
+
+      /* Header */
+      .page-title {
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      /* Create Button */
+      .btn-primary {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        border: none;
+        transition: 0.3s;
+      }
+
+      .btn-primary:hover {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      }
+
+      /* Cards */
+      .card {
+        border: none;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .card h5 {
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .card p {
+        color: #475569;
+      }
+
+      /* Buttons inside card */
+      .btn-success {
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 6px 12px;
+      }
+
+      .btn-danger {
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 6px 12px;
+      }
+
+      /* Empty state */
+      .empty {
+        text-align: center;
+        color: #64748b;
+        margin-top: 60px;
+      }
+      /* Bigger spacing */
+      .container {
+        max-width: 1100px;
+      }
+
+      /* Card spacing */
+      .row > div {
+        margin-bottom: 20px;
+      }
+
+      /* Card hover glow */
+      .card:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Button full width look */
+      .card button {
+        font-size: 14px;
+      }
+    </style>
   </head>
 
   <body>
-    <script>
-      if (!localStorage.getItem("token")) {
-        alert("Please login first");
-        window.location.href = "login.html";
-      }
-    </script>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <span class="navbar-brand fw-bold">🌍 Travelog</span>
+      </div>
+    </nav>
 
-    <div class="dashboard-container">
-      <!-- HEADER -->
-      <div class="dashboard-header">
-        <h1>Travelog Dashboard 🌍</h1>
-        <button onclick="logout()">Logout</button>
+    <!-- Content -->
+    <div class="container mt-4">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="page-title">My Trips</h3>
+        <button class="btn btn-primary" onclick="goToAddTrip()">
+          + Create Trip
+        </button>
       </div>
 
-      <!-- SELECT TRIP -->
-      <div style="margin-bottom: 20px">
-        <input type="text" id="tripInput" placeholder="Enter Trip ID" />
-        <button onclick="selectTrip()">Select Trip</button>
-      </div>
+      <!-- Trips Grid -->
+      <div class="row" id="tripList"></div>
 
-      <!-- NAVIGATION -->
-      <div style="margin-bottom: 20px">
-        <button onclick="goToAddPlace()">Add Place</button>
-        <button onclick="goToAddExpense()">Add Expense</button>
-      </div>
-
-      <!-- PLACES -->
-      <div class="trip-section">
-        <h2>📍 Places</h2>
-        <div id="placesList"></div>
-      </div>
-
-      <!-- EXPENSES -->
-      <div class="trip-section">
-        <h2>💰 Expenses</h2>
-        <div id="expenseList"></div>
-        <h3>Total: <span id="total">₹0</span></h3>
-      </div>
-
-      <!-- MAP -->
-      <div class="trip-section">
-        <h2>🗺️ Map</h2>
-        <div id="map" style="height: 300px"></div>
+      <!-- Empty Message -->
+      <div id="emptyMessage" class="empty" style="display: none">
+        <h5>No trips yet 😢</h5>
+        <p>Click "Create Trip" to start your journey!</p>
       </div>
     </div>
 
-    <script src="js/main.js"></script>
-
     <script>
-      function logout() {
-        localStorage.clear();
-        window.location.href = "login.html";
+      const token = localStorage.getItem("token");
+
+      async function fetchTrips() {
+        try {
+          const res = await fetch("http://localhost:5000/api/trips", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await res.json();
+          console.log("API:", data);
+
+          // ✅ IMPORTANT FIX
+          displayTrips(data.trips);
+        } catch (err) {
+          console.log(err);
+        }
       }
 
-      function selectTrip() {
-        const id = document.getElementById("tripInput").value;
+      function displayTrips(trips) {
+        const container = document.getElementById("tripList");
+        const emptyMsg = document.getElementById("emptyMessage");
 
-        if (!id) {
-          alert("Enter Trip ID");
+        container.innerHTML = "";
+
+        // ✅ handle empty
+        if (!trips || trips.length === 0) {
+          emptyMsg.style.display = "block";
           return;
         }
 
+        emptyMsg.style.display = "none";
+
+        trips.forEach((trip) => {
+          const col = document.createElement("div");
+          col.className = "col-md-4";
+
+          col.innerHTML = `
+  <div class="card p-4 mb-4 text-center">
+
+    <div style="font-size: 30px;">✈️</div>
+
+    <h5 class="mt-2">${trip.title}</h5>
+    <p>${trip.description || "No description"}</p>
+
+    <div class="d-flex justify-content-between mt-3">
+      <button class="btn btn-success btn-sm w-50 me-2" onclick="viewTrip('${trip._id}')">
+        View
+      </button>
+      <button class="btn btn-danger btn-sm w-50" onclick="deleteTrip('${trip._id}')">
+        Delete
+      </button>
+    </div>
+
+  </div>
+`;
+
+          container.appendChild(col);
+        });
+      }
+
+      function goToAddTrip() {
+        window.location.href = "addTrip.html";
+      }
+
+      function viewTrip(id) {
         localStorage.setItem("tripId", id);
-        alert("Trip Selected!");
+        window.location.href = "tripDetails.html";
       }
+      async function deleteTrip(id) {
+        const confirmDelete = confirm(
+          "Are you sure you want to delete this trip?",
+        );
+        if (!confirmDelete) return;
 
-      function goToAddPlace() {
-        if (!localStorage.getItem("tripId")) {
-          alert("Select a trip first!");
-          return;
+        try {
+          const res = await fetch(`http://localhost:5000/api/trips/${id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            alert("Error: " + data.message);
+            return;
+          }
+
+          alert("✅ Trip deleted");
+
+          // 🔥 refresh trips
+          fetchTrips();
+        } catch (err) {
+          console.log(err);
+          alert("Failed to delete trip");
         }
-        window.location.href = "addPlace.html";
       }
-
-      function goToAddExpense() {
-        if (!localStorage.getItem("tripId")) {
-          alert("Select a trip first!");
-          return;
-        }
-        window.location.href = "addExpense.html";
-      }
-
-      window.onload = () => {
-        initMap();
-      };
+      // 🔥 CALL FUNCTION
+      fetchTrips();
     </script>
   </body>
 </html>

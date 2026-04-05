@@ -13,10 +13,10 @@ function goBack() {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const name = document.getElementById("name").value;
-  const destination = document.getElementById("destination").value;
+  const title = document.getElementById("name").value;
+  const description = document.getElementById("destination").value;
 
-  const data = { name, destination };
+  const data = { title, description };
 
   try {
     const res = await fetch(API, {
@@ -36,11 +36,6 @@ form.addEventListener("submit", async (e) => {
     }
 
     msg.innerText = "✅ Trip Created!";
-
-    // 🔥 REDIRECT AFTER SUCCESS
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 1000);
 
   } catch (err) {
     console.error(err);
