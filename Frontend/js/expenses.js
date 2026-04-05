@@ -127,5 +127,5 @@ form.addEventListener("submit", async (e) => {
 // ================= INIT =================
 window.onload = loadExpenses;
 function goBack() {
-  window.location.href = "dashboard.html";
+  window.location.href = "tripdetails.html";
 }

@@ -26,24 +26,23 @@ async function loadExpenses() {
 
     const data = await res.json();
 
-    const list = document.getElementById("expenseList");
+    const list = document.getElementById("expensesList"); // ✅ FIXED
     list.innerHTML = "";
 
     let total = 0;
 
     data.expenses.forEach(exp => {
-      const div = document.createElement("div");
+      const li = document.createElement("li");
 
-      div.innerHTML = `
-        <p>${exp.title} - ₹${exp.amount}</p>
+      li.innerHTML = `
+        ${exp.title} - ₹${exp.amount}
       `;
 
-      list.appendChild(div);
-
+      list.appendChild(li);
       total += exp.amount;
     });
 
-    document.getElementById("total").innerText = total;
+    document.getElementById("totalExpense").innerText = total;
 
   } catch (err) {
     console.error(err);
@@ -53,20 +52,30 @@ async function loadExpenses() {
 // ================= LOAD PLACES =================
 async function loadPlaces() {
   try {
-    const res = await fetch(`http://localhost:5000/api/places/${tripId}`);
+    const res = await fetch(`http://localhost:5000/api/places/${tripId}`, {
+      headers: {
+        Authorization: `Bearer ${token}` // ✅ IMPORTANT FIX
+      }
+    });
+
     const data = await res.json();
 
     const list = document.getElementById("placesList");
     list.innerHTML = "";
 
-    data.places.forEach(place => {
-      const div = document.createElement("div");
+    if (!data.places || data.places.length === 0) {
+      list.innerHTML = "<li>No places added</li>";
+      return;
+    }
 
-      div.innerHTML = `
-        <p>${place.name}</p>
+    data.places.forEach(place => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        📍 <b>${place.name}</b>
       `;
 
-      list.appendChild(div);
+      list.appendChild(li);
     });
 
   } catch (err) {

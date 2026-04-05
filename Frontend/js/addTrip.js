@@ -14,7 +14,7 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const title = document.getElementById("name").value;
-  const description = document.getElementById("destination").value;
+  const description = document.getElementById("description").value;
 
   const data = { title, description };
 

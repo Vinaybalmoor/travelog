@@ -3,26 +3,95 @@
   <head>
     <meta charset="UTF-8" />
     <title>Trip Details</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      .container-box {
+        max-width: 900px;
+        margin: 40px auto;
+      }
+
+      .card {
+        border: none;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        background: white;
+      }
+
+      .title {
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .btn-custom {
+        border-radius: 10px;
+        font-weight: 500;
+        margin-right: 10px;
+      }
+
+      .total-box {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .section-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+    </style>
   </head>
 
   <body>
-    <h2>Trip Details</h2>
+    <div class="container-box">
+      <!-- Header -->
+      <div class="mb-3">
+        <button class="btn btn-outline-dark btn-sm mb-2" onclick="goBack()">
+          ⬅ Back
+        </button>
 
-    <button onclick="goBack()">⬅ Back</button>
+        <h2 class="title text-center">✈️ Trip Details</h2>
+      </div>
 
-    <br /><br />
+      <!-- Actions -->
+      <div class="mb-3">
+        <button class="btn btn-primary btn-custom" onclick="goToAddPlace()">
+          📍 Add Place
+        </button>
+        <button class="btn btn-success btn-custom" onclick="goToAddExpense()">
+          💰 Add Expense
+        </button>
+      </div>
 
-    <button onclick="goToAddPlace()">Add Place</button>
-    <button onclick="goToAddExpense()">Add Expense</button>
+      <!-- Total Expense -->
+      <div class="card total-box">
+        Total Expense: ₹<span id="totalExpense">0</span>
+      </div>
 
-    <hr />
+      <!-- Places Section -->
+      <div class="card">
+        <h5 class="section-title">📍 Places</h5>
+        <ul id="placesList"></ul>
+      </div>
 
-    <h3>📍 Places</h3>
-    <div id="placesList"></div>
-
-    <h3>💰 Expenses</h3>
-    <div id="expenseList"></div>
-    <p>Total: ₹<span id="total">0</span></p>
+      <!-- Expenses Section -->
+      <div class="card">
+        <h5 class="section-title">💰 Expenses</h5>
+        <ul id="expensesList"></ul>
+      </div>
+    </div>
 
     <script src="js/tripDetails.js"></script>
   </body>

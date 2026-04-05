@@ -1,101 +1,77 @@
-const API = "http://localhost:5000/api/places";
+const token = localStorage.getItem("token");
 const tripId = localStorage.getItem("tripId");
 
-const form = document.getElementById("placeForm");
-const table = document.getElementById("placesTable");
+// ================= MAP =================
+const map = L.map('map').setView([17.3850, 78.4867], 10);
 
-// ================= LOAD PLACES =================
-async function loadPlaces() {
-  if (!tripId) {
-    alert("No trip selected");
-    return;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+let marker;
+
+map.on('click', function(e) {
+  const { lat, lng } = e.latlng;
+
+  if (marker) {
+    map.removeLayer(marker);
   }
 
-  try {
-    const res = await fetch(`${API}/${tripId}`);
-    const data = await res.json();
+  marker = L.marker([lat, lng]).addTo(map);
 
-    table.innerHTML = "";
-
-    data.places.forEach(place => {
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${place.name}</td>
-        <td>${place.latitude}</td>
-        <td>${place.longitude}</td>
-        <td>
-          <button onclick="editPlace('${place._id}', '${place.name}', ${place.latitude}, ${place.longitude})">Edit</button>
-          <button onclick="deletePlace('${place._id}')">Delete</button>
-        </td>
-      `;
-
-      table.appendChild(row);
-    });
-
-  } catch (err) {
-    console.error("Error loading places:", err);
-  }
-}
-
-// ================= ADD / UPDATE =================
-if (form) {
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const id = document.getElementById("placeId").value;
-    const name = document.getElementById("name").value;
-    const latitude = document.getElementById("lat").value;
-    const longitude = document.getElementById("lng").value;
-
-    const data = { name, latitude, longitude, tripId };
-
-    try {
-      if (id) {
-        await fetch(`${API}/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-      } else {
-        await fetch(API, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-      }
-
-      form.reset();
-      document.getElementById("placeId").value = "";
-      loadPlaces();
-
-    } catch (err) {
-      console.error("Error saving place:", err);
-    }
-  });
-}
-
-// ================= DELETE =================
-async function deletePlace(id) {
-  if (!confirm("Are you sure?")) return;
-
-  try {
-    await fetch(`${API}/${id}`, { method: "DELETE" });
-    loadPlaces();
-  } catch (err) {
-    console.error("Error deleting:", err);
-  }
-}
-
-// ================= EDIT =================
-function editPlace(id, name, lat, lng) {
-  document.getElementById("placeId").value = id;
-  document.getElementById("name").value = name;
   document.getElementById("lat").value = lat;
   document.getElementById("lng").value = lng;
-}
+});
 
-// ================= INITIAL LOAD =================
-window.onload = () => {
-  loadPlaces();
-};
+// ================= ADD PLACE =================
+const form = document.getElementById("placeForm");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const latitude = document.getElementById("lat").value;
+  const longitude = document.getElementById("lng").value;
+
+  // 🔴 DEBUG
+  console.log("TripId:", tripId);
+
+  const data = {
+    name,
+    latitude,
+    longitude,
+    tripId
+  };
+
+  try {
+    const res = await fetch("http://localhost:5000/api/places", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert("Error: " + result.message);
+      return;
+    }
+
+    alert("✅ Place Added!");
+
+    // 🔥 clear form
+    form.reset();
+
+  } catch (err) {
+    console.log(err);
+    alert("Server error");
+  }
+});
+
+// 🔙 BACK
+function goBack() {
+  window.location.href = "tripDetails.html";
+}

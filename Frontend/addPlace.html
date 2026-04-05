@@ -1,56 +1,78 @@
 <!doctype html>
 <html>
   <head>
-    <title>Manage Places</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <title>Add Place</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f7fb;
+        padding: 20px;
+      }
+
+      h2 {
+        margin-bottom: 10px;
+      }
+
+      #map {
+        height: 400px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+      }
+
+      input {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        width: 200px;
+      }
+
+      button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: white;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+      }
+    </style>
   </head>
+
   <body>
-    <div style="margin-bottom: 10px">
-      <button onclick="goBack()">⬅ Back</button>
-    </div>
-    <h2>📍 Manage Places</h2>
+    <button onclick="goBack()">⬅ Back</button>
 
-    <!-- ADD / UPDATE FORM -->
+    <h2>📍 Add Place (Select from Map)</h2>
+
+    <!-- MAP -->
+    <div id="map"></div>
+
+    <!-- FORM -->
     <form id="placeForm">
-      <input type="hidden" id="placeId" />
-
       <input type="text" id="name" placeholder="Place Name" required />
-      <input
-        type="number"
-        step="any"
-        id="lat"
-        placeholder="Latitude"
-        required
-      />
-      <input
-        type="number"
-        step="any"
-        id="lng"
-        placeholder="Longitude"
-        required
-      />
+      <input type="text" id="lat" placeholder="Latitude" readonly />
+      <input type="text" id="lng" placeholder="Longitude" readonly />
 
-      <button type="submit">Save Place</button>
+      <br /><br />
+
+      <button type="submit">Add Place</button>
     </form>
 
-    <h3>Your Places</h3>
-
-    <table border="1" cellpadding="10">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Latitude</th>
-          <th>Longitude</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="placesTable"></tbody>
-    </table>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script src="js/place.js"></script>
+
     <script>
       function goBack() {
-        window.location.href = "dashboard.html"; // change if your home page name is different
+        window.location.href = "tripDetails.html";
       }
     </script>
   </body>
