@@ -15,6 +15,13 @@ const tripSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    imageUrl: {
+      type: String,
+    },
+    images: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,
