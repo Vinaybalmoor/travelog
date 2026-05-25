@@ -41,4 +41,4 @@ To evolve this into a flagship full-stack application, the following milestones 
 * **CI/CD Pipeline:** Automate testing and deployment using GitHub Actions.
 * **Caching Layer:** Integrate Redis for performance optimization and faster data retrieval.
 * **Advanced Security:** Implement Role-Based Access Control (RBAC), refresh tokens, and rate limiting.
-* **Media & Maps:** Integrate Cloudinary for media uploads and add map services for dynamic trip visualization.
+  
